@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "80723378155",
+    "project_id": "sunil-admin",
+    "storage_bucket": "sunil-admin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80723378155:android:1e7b70254e3937ec38a3ae",
+        "android_client_info": {
+          "package_name": "com.sunilproject.suniladmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "80723378155-3o39vcheu9jedssghjnagksbdl7eri5m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sunilproject.suniladmin",
+            "certificate_hash": "704b4b6cab76e1ae55348c78d208a2848179fb3c"
+          }
+        },
+        {
+          "client_id": "80723378155-d084pttcbthamb172qo8h9gh7ohsqipt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sunilproject.suniladmin",
+            "certificate_hash": "116c8cc0e9fe2f2c3eaf9d1a3809fb329a3420e6"
+          }
+        },
+        {
+          "client_id": "80723378155-mh34fqjpsfiirs19mlkfq4lo5spuai6d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaEWaZCMYofWdDMlTNjlgmMBd6yXIw9Q4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "80723378155-mh34fqjpsfiirs19mlkfq4lo5spuai6d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

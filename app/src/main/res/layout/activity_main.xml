@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="30dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputLayout_article_title"
+                    style="@style/MyTextInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:hint="Enter Article Topic"
+                    android:visibility="visible"
+                    app:boxCornerRadiusBottomEnd="30dp"
+                    app:boxCornerRadiusTopStart="30dp"
+                    app:counterEnabled="true"
+                    app:counterTextColor="@color/black"
+                    app:endIconDrawable="@drawable/ic_baseline_title_24"
+                    app:endIconMode="custom"
+                    app:helperTextTextColor="#ED1515"
+                    app:hintTextColor="@color/black"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="0dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/textInputEdittext_article_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:textColor="@color/purple_700"
+                        android:textColorHint="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputLayout_article_description"
+                    style="@style/MyTextInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:hint="Enter Article Description"
+                    android:visibility="visible"
+                    app:boxCornerRadiusBottomEnd="30dp"
+                    app:boxCornerRadiusTopStart="30dp"
+                    app:counterEnabled="true"
+                    app:counterTextColor="@color/black"
+                    app:endIconDrawable="@drawable/ic_baseline_description_24"
+                    app:endIconMode="custom"
+                    app:helperTextTextColor="#ED1515"
+                    app:hintTextColor="@color/black"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="0dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/textInputEdittext_article_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:textColor="@color/purple_700"
+                        android:textColorHint="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputLayout_keyword"
+                    style="@style/MyTextInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:hint="Enter Keywords"
+                    android:visibility="visible"
+                    app:boxCornerRadiusBottomEnd="30dp"
+                    app:boxCornerRadiusTopStart="30dp"
+                    app:counterEnabled="true"
+                    app:counterTextColor="@color/black"
+                    app:endIconDrawable="@drawable/ic_baseline_description_24"
+                    app:endIconMode="custom"
+                    app:helperTextTextColor="#ED1515"
+                    app:hintTextColor="@color/black"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="0dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/textInputEdittext_podcast_keyword"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:gravity="top"
+                        android:hint="\nSeperate keywords with commas"
+                        android:inputType="textMultiLine"
+                        android:textColor="@color/purple_700"
+                        android:textColorHint="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingBottom="100dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="30dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <!--                        <FrameLayout-->
+                        <!--                            android:id="@+id/record_fl"-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:layout_height="wrap_content">-->
+
+                        <!--                            <com.airbnb.lottie.LottieAnimationView-->
+                        <!--                                android:layout_width="150dp"-->
+                        <!--                                android:layout_height="150dp"-->
+                        <!--                                app:lottie_autoPlay="true"-->
+                        <!--                                android:padding="0dp"-->
+                        <!--                                app:lottie_loop="true"-->
+                        <!--                                android:id="@+id/lottie"-->
+                        <!--                                app:lottie_rawRes="@raw/recording_animation"/>-->
+                        <ImageView
+                            android:id="@+id/camera_iv"
+                            android:layout_width="150dp"
+                            android:layout_height="150dp"
+                            android:backgroundTint="#B31717"
+                            android:padding="20dp"
+                            android:src="@drawable/ic_baseline_photo_camera_24"
+                            android:textColor="@color/white"
+                            app:tint="@color/black" />
+                        <!--                        </FrameLayout>-->
+
+                        <!--                        <Chronometer-->
+                        <!--                            android:id="@+id/simpleChronometer"-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:padding="10dp"-->
+                        <!--                            android:layout_height="wrap_content"-->
+                        <!--                            android:textColor="@color/black" />-->
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:id="@+id/tap_to_record"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center"
+                        android:text="'Tap' to Take Photo"
+                        android:textColor="@color/black" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:gravity="center"
+                        android:text="-------- OR ---------"
+                        android:textColor="@color/black" />
+
+                    <LinearLayout
+                        android:id="@+id/choose_from_file"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_folder_open_24"
+                            app:tint="@color/black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:gravity="center"
+                            android:text="Choose from file"
+                            android:textColor="@color/black" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/view_image_ll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/view_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="300dp"
+                            android:src="@mipmap/ic_launcher" />
+
+                        <com.jsibbold.zoomage.ZoomageView
+                            android:id="@+id/myZoomageView"
+                            android:layout_width="match_parent"
+                            android:layout_height="500dp"
+                            android:src="@mipmap/ic_launcher"
+                            app:zoomage_restrictBounds="false"
+                            app:zoomage_animateOnReset="true"
+                            app:zoomage_autoResetMode="UNDER"
+                            app:zoomage_autoCenter="true"
+                            app:zoomage_zoomable="true"
+                            app:zoomage_translatable="true"
+                            app:zoomage_minScale="0.6"
+                            app:zoomage_maxScale="8"
+                            />
+
+                        <Button
+                            android:id="@+id/scan_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:text="Scan Image" />
+                        <Button
+                            android:id="@+id/remove_shadow"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:text="Remove Shadow" />
+                    </LinearLayout>
+
+
+                    <!--                    <LinearLayout-->
+                    <!--                        android:id="@+id/audio_play_track"-->
+                    <!--                        android:layout_marginTop="5dp"-->
+                    <!--                        android:paddingStart="15dp"-->
+                    <!--                        android:paddingEnd="15dp"-->
+                    <!--                        android:paddingTop="4dp"-->
+                    <!--                        android:paddingBottom="4dp"-->
+                    <!--                        android:backgroundTint="#CAD5E6"-->
+                    <!--                        android:background="@drawable/round_background"-->
+                    <!--                        android:orientation="horizontal"-->
+                    <!--                        android:layout_width="match_parent"-->
+                    <!--                        android:layout_height="wrap_content">-->
+                    <!--                        <ImageView-->
+                    <!--                            android:id="@+id/play_button"-->
+                    <!--                            android:src="@drawable/ic_baseline_play_arrow_24"-->
+                    <!--                            app:tint="@color/white"-->
+                    <!--                            android:layout_gravity="center"-->
+                    <!--                            android:padding="10dp"-->
+                    <!--                            android:background="@drawable/round_background"-->
+                    <!--                            android:layout_width="50dp"-->
+                    <!--                            android:layout_height="50dp"/>-->
+                    <!--                        <LinearLayout-->
+                    <!--                            android:orientation="vertical"-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="wrap_content">-->
+
+                    <!--                            <TextView-->
+                    <!--                                android:id="@+id/audio_title"-->
+                    <!--                                android:padding="5dp"-->
+                    <!--                                android:layout_marginTop="5dp"-->
+                    <!--                                android:textColor="@color/black"-->
+                    <!--                                android:text="selected audio : "-->
+                    <!--                                android:layout_width="match_parent"-->
+                    <!--                                android:layout_height="wrap_content"/>-->
+                    <!--                            &lt;!&ndash;                        <ProgressBar&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:id="@+id/progress"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            style="?android:attr/progressBarStyleHorizontal"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:layout_width="match_parent"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:layout_height="wrap_content"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:layout_centerHorizontal="true"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:layout_centerVertical="true"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:max="100"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:layout_gravity="center"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:layout_marginTop="10dp"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:layout_marginRight="10dp"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:layout_marginLeft="10dp"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:progress="0"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            android:progressTint="@color/purple_500"&ndash;&gt;-->
+                    <!--                            &lt;!&ndash;                            app:layout_constraintVertical_bias="0.84" />&ndash;&gt;-->
+                    <!--                            <SeekBar-->
+                    <!--                                android:id="@+id/progress"-->
+                    <!--                                android:layout_marginRight="10dp"-->
+                    <!--                                android:layout_marginLeft="10dp"-->
+                    <!--                                android:progress="0"-->
+                    <!--                                android:layout_width="match_parent"-->
+                    <!--                                android:layout_height="wrap_content"/>-->
+
+                    <!--                            <TextView-->
+                    <!--                                android:layout_marginLeft="10dp"-->
+                    <!--                                android:id="@+id/durution"-->
+                    <!--                                android:paddingLeft="15dp"-->
+                    <!--                                android:textColor="@color/purple_700"-->
+                    <!--                                android:text="0:00 / 0:00"-->
+                    <!--                                android:layout_width="wrap_content"-->
+                    <!--                                android:layout_height="wrap_content"/>-->
+                    <!--                        </LinearLayout>-->
+                    <!--                    </LinearLayout>-->
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/scroll_view" />
+    <Button
+        android:id="@+id/upload_btn"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="upload"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

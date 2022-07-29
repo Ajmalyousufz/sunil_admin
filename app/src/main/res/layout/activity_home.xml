@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomeActivity">
+
+    <GridLayout
+        android:columnCount="2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:backgroundTint="@color/purple_500"
+            android:drawableTop="@drawable/ic_baseline_cloud_upload_24"
+            android:drawableTint="@color/white"
+            android:paddingTop="20dp"
+            android:text="Upload Article"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:textColor="@color/white"
+            android:layout_margin="30dp"
+            android:id="@+id/upload_article"/>
+<!--        <Button-->
+<!--            android:paddingTop="20dp"-->
+<!--            android:layout_width="150dp"-->
+<!--            android:layout_height="150dp"-->
+<!--            android:layout_margin="30dp"/>-->
+
+<!--        <Button-->
+<!--            android:layout_width="150dp"-->
+<!--            android:layout_height="150dp"-->
+<!--            android:layout_margin="30dp"/>-->
+
+    </GridLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
