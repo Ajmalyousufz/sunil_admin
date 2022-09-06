@@ -18,6 +18,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -361,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
                             // set Uri on text view
 
                             // Get PDF path
-                            String sPath = sUri.getPath();
+                            //String sPath = sUri.getPath();
                             // Set path on text view
 //                            tvPath.setText(Html.fromHtml(
 //                                    "<big><b>PDF Path</b></big><br>"
@@ -383,7 +384,31 @@ public class MainActivity extends AppCompatActivity {
                             //this func occure must be in upload button
                             mData = data;
                             String realPath = "";
+                            Log.d("jdf","---------  data.getData() ; "+data.getData()+" ---- sUri.getEncodedPath() ----" +sUri.getEncodedPath());
+
+                            // content://com.android.externalstorage.documents/document/
+
+                            //content://com.android.providers.media.documents/document/
+
+                            Log.d("jdf","---------  real path ----- sUri.getPath() ; "+sUri.getPath()+"  --- sUri.getAuthority() :  " +sUri.getAuthority() + "----- data.getScheme() "+data.getScheme());
+
+//                            if(sUri.getAuthority().equals("com.android.providers.media.documents")){
+//                                Log.d("jdf","-----4$---  real path ----- sUri.getPath() ; "+sUri.getEncodedPath());
+//                                realPath = sUri.getEncodedPath();
+//                                File fl = new File(sUri.toString());
+//                                File path = null;
+//                                path = fl.getAbsoluteFile();
+//                                Log.d("jdf","-----4$---  real path ----- pathpathpath ; "+path);
+//                                //realPath = getPDFPath(data.getData());
+//
+//                            }
+//                            else {
+//
+//                                realPath = ImageFilePath.getPath(MainActivity.this, data.getData());
+//                            }
+
                             realPath = ImageFilePath.getPath(MainActivity.this, data.getData());
+
 //                realPath = RealPathUtil.getRealPathFromURI_API19(this, data.getData());
 
                             Log.d("jdf","---------  real path ; "+realPath
@@ -398,44 +423,61 @@ public class MainActivity extends AppCompatActivity {
                             convertPdfToBitmap(f, new Callback() {
                                 @Override
                                 public void onSuccess() {
-                                    pdfBitmap = TrimBitmap(pdfBitmap, new Callback() {
-                                        @Override
-                                        public void onSuccess() {
 
-                                            Log.d("jdf","convertPdfto image2  ");
-                                            imgview.setVisibility(View.VISIBLE);
-                                            imgview.setImageBitmap(pdfBitmap);
+                                    Log.d("jdf","convertPdfto image2  ");
+                                    imgview.setVisibility(View.VISIBLE);
+                                    imgview.setImageBitmap(pdfBitmap);
 
-                                            ZoomageView imgvieww =   findViewById(R.id.myZoomageView);
-                                            //view_image_ll.setVisibility(View.VISIBLE);
-                                            imgvieww.setVisibility(View.VISIBLE);
-                                            imgvieww.setImageBitmap(pdfBitmap);
-                                            realPth= finalRealPath;
-                                            realuri = String.valueOf(sUri);
+                                    ZoomageView imgvieww =   findViewById(R.id.myZoomageView);
+                                    //view_image_ll.setVisibility(View.VISIBLE);
+                                    imgvieww.setVisibility(View.VISIBLE);
+                                    imgvieww.setImageBitmap(pdfBitmap);
+                                    realPth= finalRealPath;
+                                    realuri = String.valueOf(sUri);
 
-                                            tvPath.setText(Html.fromHtml(
-                                                    "<big><b>PDF Uri</b></big><br>"
-                                                            + realPth));
-                                            //progressDialog.dismiss();
+                                    tvPath.setText(Html.fromHtml(
+                                            "<big><b>PDF Uri</b></big><br>"
+                                                    + realPth));
 
-//                                            uploadFile(pdfBitmap, timestmp, new Callback() {
-//                                                @Override
-//                                                public void onSuccess() {
-//                                                    //progressDialog.dismiss();
-//                                                }
+//                                    pdfBitmap = TrimBitmap(pdfBitmap, new Callback() {
+//                                        @Override
+//                                        public void onSuccess()
+//                                        {
 //
-//                                                @Override
-//                                                public void onFailure(String error) {
+//                                            Log.d("jdf","convertPdfto image2  ");
+//                                            imgview.setVisibility(View.VISIBLE);
+//                                            imgview.setImageBitmap(pdfBitmap);
 //
-//                                                }
-//                                            });
-                                        }
-
-                                        @Override
-                                        public void onFailure(String error) {
-
-                                        }
-                                    });
+//                                            ZoomageView imgvieww =   findViewById(R.id.myZoomageView);
+//                                            //view_image_ll.setVisibility(View.VISIBLE);
+//                                            imgvieww.setVisibility(View.VISIBLE);
+//                                            imgvieww.setImageBitmap(pdfBitmap);
+//                                            realPth= finalRealPath;
+//                                            realuri = String.valueOf(sUri);
+//
+//                                            tvPath.setText(Html.fromHtml(
+//                                                    "<big><b>PDF Uri</b></big><br>"
+//                                                            + realPth));
+//                                            //progressDialog.dismiss();
+//
+////                                            uploadFile(pdfBitmap, timestmp, new Callback() {
+////                                                @Override
+////                                                public void onSuccess() {
+////                                                    //progressDialog.dismiss();
+////                                                }
+////
+////                                                @Override
+////                                                public void onFailure(String error) {
+////
+////                                                }
+////                                            });
+//                                        }
+//
+//                                        @Override
+//                                        public void onFailure(String error) {
+//
+//                                        }
+//                                    });
 
 
                                 }
@@ -1424,6 +1466,20 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public String getPDFPath(Uri uri){
+
+        final String id = DocumentsContract.getDocumentId(uri);
+        String mIds[] = id.split(":");
+        final Uri contentUri = ContentUris.withAppendedId(
+                Uri.parse("content://downloads/public_downloads"), Long.valueOf(mIds[1]));
+
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getContentResolver().query(contentUri, projection, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
+
     @Override
     protected Dialog onCreateDialog(int id) {
         // TODO Auto-generated method stub
@@ -1610,9 +1666,22 @@ public class MainActivity extends AppCompatActivity {
     private void selectPDF()
     {
         // Initialize intent
+//        String[] mimeTypes = {"image/*",
+//                "application/pdf",
+//                "application/zip",
+//                "application/vnd.ms-powerpoint",
+//                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+//                "application/msword",
+//                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+//                "text/plain"
+//        };
         Intent intent
                 = new Intent(Intent.ACTION_GET_CONTENT);
+
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        //intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         // set type
+        //intent.setType("*/*");
         intent.setType("application/pdf");
         // Launch intent
         resultLauncher.launch(intent);
@@ -1732,7 +1801,7 @@ public class MainActivity extends AppCompatActivity {
         imageTime = String.valueOf(time);
         StorageReference mountainImagesRef = storageReference.child("images/img" + time);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        bitmap.compress(Bitmap.CompressFormat.WEBP, 100, baos);
         byte[] data = baos.toByteArray();
         UploadTask uploadTask = mountainImagesRef.putBytes(data);
 

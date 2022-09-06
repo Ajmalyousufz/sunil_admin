@@ -2,6 +2,7 @@ package com.sunilproject.suniladmin.utils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -11,6 +12,8 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import java.security.Provider;
 
 //import android.provider.<span id="IL_AD11" class="IL_AD">MediaStore</span>;
 
@@ -30,6 +33,8 @@ public class ImageFilePath {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @SuppressLint("NewApi")
     public static String getPath(final Context context, final Uri uri) {
+        Log.d("jdf","-------5----  ----- getScheme --- "+uri.getScheme());
+        Log.d("jdf","------dgfdf---ui--"+uri+"  ----- getScheme --- "+uri.getScheme());
 
         // check here to KITKAT or new version
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -71,6 +76,11 @@ public class ImageFilePath {
                     contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                 } else if ("audio".equals(type)) {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }else if ("document".equals(type)){
+
+                    Log.d("jdf","----------- type : "+type+"  --- doc id : "+docId+" ----- contentUri --- "+contentUri);
+                    contentUri = MediaStore.Files.getContentUri("external");
+                    Log.d("jdf","----------- type : "+type+"  --- doc id : "+docId+" ----- contentUri --- "+contentUri);
                 }
 
                 final String selection = "_id=?";
@@ -80,12 +90,16 @@ public class ImageFilePath {
                         selectionArgs);
             }
         }
+
         // MediaStore (and general)
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
 
+            Log.d("jdf","---------ui--"+uri.getPath()+"  ----- getScheme --- "+uri.getScheme());
             // Return the remote address
             if (isGooglePhotosUri(uri))
+            {
                 return uri.getLastPathSegment();
+            }
 
             return getDataColumn(context, uri, null, null);
         }
@@ -93,7 +107,12 @@ public class ImageFilePath {
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
+//        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+//            return uri.getPath();
+//        }
 
+        Log.d("jdf","---------ui--"+uri.getPath()+"  ----- getScheme --- "+uri.getScheme());
+        Log.d("jdf","-----------  ----- getScheme --- "+uri.getScheme());
         return nopath;
     }
 
@@ -118,6 +137,8 @@ public class ImageFilePath {
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = { column };
+        Log.d("jdf","---------  sUri  ; "+uri
+        );
 
         try {
             cursor = context.getContentResolver().query(uri, projection,
