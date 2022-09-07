@@ -12,6 +12,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.asksira.webviewsuite.WebViewSuite;
 import com.github.barteksc.pdfviewer.PDFView;
@@ -48,6 +49,7 @@ public class MainActivity2 extends AppCompatActivity {
         pdfuri = getIntent().getStringExtra("linkuri");
         realuri = getIntent().getStringExtra("realuri");
         realpath = getIntent().getStringExtra("realpath");
+        Toast.makeText(this, "real path : "+realpath, Toast.LENGTH_SHORT).show();
         //inputStream = getIntent().getParcelableExtra("intentStream");
         inputStream = MainActivity.getInStreams();
         //webviewid = findViewById(R.id.webViewSuite);

@@ -18,6 +18,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -30,13 +31,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Picture;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.pdf.PdfDocument;
 import android.graphics.pdf.PdfRenderer;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -82,7 +86,8 @@ import com.jsibbold.zoomage.ZoomageView;
 import com.namangarg.androiddocumentscannerandfilter.DocumentFilter;
 //import com.scanlibrary.ScanActivity;
 //import com.pdfview.PDFView;
-import com.shockwave.pdfium.PdfDocument;
+import com.scanlibrary.ScanActivity;
+import com.scanlibrary.ScanConstants;
 import com.shockwave.pdfium.PdfiumCore;
 import com.sunilproject.suniladmin.utils.Callback;
 import com.sunilproject.suniladmin.utils.ImageFilePath;
@@ -111,6 +116,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
+
+//import info.hannes.liveedgedetection.ScanConstants;
+//import info.hannes.liveedgedetection.activity.ScanActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -167,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout webviewlayoutid;
     ImageView imgview;
     String realPth="",realuri="";
+    private String rootpath;
     //PDFView pdfview;
 
     //DocumentScannerView documentScannerView;
@@ -175,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         choose_from_file = findViewById(R.id.choose_from_file);
         camera_iv = findViewById(R.id.camera_iv);
@@ -193,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
         //webviewlayoutid.setVisibility(View.GONE);
         webviewlayoutid.setOnClickListener(v -> {
+            Toast.makeText(this, "ldfjdf", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
             intent.putExtra("linkuri",pageurl);
             intent.putExtra("realpath",realPth);
@@ -684,6 +695,8 @@ public class MainActivity extends AppCompatActivity {
 
         view_image.setOnClickListener(v -> {
 
+
+
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
 
                 @Override
@@ -740,6 +753,13 @@ public class MainActivity extends AppCompatActivity {
 
         myZoomageView.setOnClickListener(v -> {
 
+            Toast.makeText(this, "ldjfd", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
+            intent.putExtra("linkuri",pageurl);
+            intent.putExtra("realpath",rootpath);
+            intent.putExtra("realuri",realuri);
+            //intent.putExtra("intentStream", (Parcelable) intentStream[0]);
+            startActivity(intent);
 
 //            Intent intent = new Intent(this, ScanActivity.class);
 //            intent.putExtra(ScanActivity.EXTRA_BRAND_IMG_RES, com.scanlibrary.R.drawable.ic_crop_white_24dp); // Set image for title icon - optional
@@ -748,29 +768,29 @@ public class MainActivity extends AppCompatActivity {
 //            intent.putExtra(ScanActivity.EXTRA_LANGUAGE, "en"); // Set language - optional
 //            startActivityForResult(intent, REQUEST_CODE_SCAN);
 
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    //doubleBackToExitPressedOnce=false;
-                    progressbar.setVisibility(View.VISIBLE);
-                }
-            }, 10);
-
-            Intent intent = new Intent(getApplicationContext(),ViewFullImageActivity.class);
-
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            byte[] bytes = stream.toByteArray();
-
-            SharedPreferences.Editor shEditor = sharedPreferences.edit();
-            String saveThis = Base64.encodeToString(bytes, Base64.DEFAULT);
-            shEditor.putString("bitmapbytes", saveThis);
-            shEditor.apply();
-            shEditor.commit();
-
-            //startActivity(intent);
-            intentreultlaucher.launch(intent);
+//            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//
+//                @Override
+//                public void run() {
+//                    //doubleBackToExitPressedOnce=false;
+//                    progressbar.setVisibility(View.VISIBLE);
+//                }
+//            }, 10);
+//
+//            Intent intent = new Intent(getApplicationContext(),ViewFullImageActivity.class);
+//
+//            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//            photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//            byte[] bytes = stream.toByteArray();
+//
+//            SharedPreferences.Editor shEditor = sharedPreferences.edit();
+//            String saveThis = Base64.encodeToString(bytes, Base64.DEFAULT);
+//            shEditor.putString("bitmapbytes", saveThis);
+//            shEditor.apply();
+//            shEditor.commit();
+//
+//            //startActivity(intent);
+//            intentreultlaucher.launch(intent);
             //progressbar.setVisibility(View.GONE);
         });
 
@@ -874,8 +894,6 @@ public class MainActivity extends AppCompatActivity {
 //            }
         });
 
-
-
         ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -886,10 +904,33 @@ public class MainActivity extends AppCompatActivity {
 
                             // There are no request codes
                             Intent data = result.getData();
+
+                            Uri uri = data.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
+//                            Bitmap bitmap1 = null;
+//                            try {
+//                                bitmap1 = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+//                                getContentResolver().delete(uri, null, null);
+//                                view_image_ll.setVisibility(View.VISIBLE);
+//                                photo = bitmap1;
+//                                view_image.setImageBitmap(bitmap1);
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+
+                            //String filePatht = data.getExtras().getString(ScanConstants.SCANNED_RESULT);
+                            Log.d("jdf","-------------uri uri : "+uri);
+                            //Bitmap baseBitMap = filePath.b
+
 //                            String requestCode = (String) data.getExtras().get("requestCode");
                             //Log.d(TAG,"------------------------ requestCode ; "+data+" -------------photo : ");
 //                            assert data != null;
-                            if(result.getData() == null){
+
+                            /////////////////////////////////////
+
+                            Log.d("jdf","______---- : "+result.getData().getParcelableExtra(ScanConstants.OPEN_INTENT_PREFERENCE)+
+                                    "  scheme --- "+result.getData().getScheme()+"");
+
+                            if(uri != null){
 //                                photo = (Bitmap)data.getExtras()
 //                                        .get("data");
 //                                filePath = (Uri) data.getExtras()
@@ -897,10 +938,12 @@ public class MainActivity extends AppCompatActivity {
                                 //uploadFile(photo);
 
                                 try {
+                                    imageUri = uri;
                                     //Uri imageUri = null;
                                     photo = MediaStore.Images.Media.getBitmap(
                                             getContentResolver(), imageUri);
 
+                                    Log.d("jdf","---------------file path : "+imageUri+"  filepath.getpath : "+imageUri.getPath()+" photo bitmap : "+photo);
                                     Log.d(TAG,"---------------file path : "+imageUri+"  filepath.getpath : "+imageUri.getPath()+" photo bitmap : "+photo);
                                     ExifInterface ei = new ExifInterface(getRealPathFromURI(imageUri));
                                     int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
@@ -927,10 +970,16 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     photo = rotatedBitmap;
                                     originalbitmap = photo;
+                                    pdfBitmap = photo;
                                     view_image.setImageBitmap(photo);
                                     myZoomageView.setImageBitmap(photo);
+                                    getContentResolver().delete(uri, null, null);
                                     view_image_ll.setVisibility(View.VISIBLE);
+                                    Log.d("jdf","---------------  convertBitmapToPdf1 : ");
+                                    convertBitmapToPdf(photo);
                                     imageurl = getRealPathFromURI(imageUri);
+
+
                                     //view_image.setRotationY(90);
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -942,7 +991,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d(TAG,"------------------------ result ; "+result.getData()+" -------------photo : "+photo.getAllocationByteCount());
                             }
                             else {
-                                filePath = data.getData();
+                                filePath = uri;
                                 try {
 
                                     view_image_ll.setVisibility(View.VISIBLE);
@@ -1128,6 +1177,11 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "success : "+data.getData().getPath(), Toast.LENGTH_SHORT).show();
                                 Log.d(TAG,"------------------------ result ; "+result+" -------------picked : ");
                             }
+
+                            Log.d("jdf","___uri___---- : "+uri);
+
+                            /////////////////////////////////////////
+
                             //Toast.makeText(MainActivity.this, "success : "+data.getData(), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -1141,7 +1195,9 @@ public class MainActivity extends AppCompatActivity {
             {
                 Map<String,Object> contentMap = new HashMap<>();
                // uploadImage();
-                if(mData!=null){
+
+
+                if(mData!=null || imageUri!=null){
                     ArrayList<String> keyword_arrlist = new ArrayList<>();
 
                     if(!keywordtext.equals("")){
@@ -1186,7 +1242,7 @@ public class MainActivity extends AppCompatActivity {
 
                                     //Upload pdf
 
-                                    if(mData!=null){
+                                    if(mData!=null || imageUri!=null){
 
                                         long timestmp = System.currentTimeMillis();
 
@@ -1194,6 +1250,7 @@ public class MainActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess() {
                                                 //progressDialog.dismiss();
+
                                                 uploadPdfFile(mData,timestmp, new Callback() {
 
                                                     @Override
@@ -1427,16 +1484,24 @@ public class MainActivity extends AppCompatActivity {
 //                        = new Intent(MediaStore
 //                        .ACTION_IMAGE_CAPTURE);
 
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.TITLE, "New Picture");
-                values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
-                imageUri = getContentResolver().insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                //startActivityForResult(intent, PICTURE_RESULT);
-                intent.putExtra("requestCode", "cameraIntent");
+               // Intent intent2 = new Intent(getApplicationContext(), ScanActivity.class);
+
+//                ContentValues values = new ContentValues();
+//                values.put(MediaStore.Images.Media.TITLE, "New Picture");
+//                values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
+//                imageUri = getContentResolver().insert(
+//                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+//                //startActivityForResult(intent, PICTURE_RESULT);
+//                intent.putExtra("requestCode", "cameraIntent");
+
+                int preference = ScanConstants.OPEN_CAMERA;
+                Intent intent = new Intent(this, ScanActivity.class);
+                intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE, preference);
+
                 someActivityResultLauncher.launch(intent);
+
             }else{
 
                 requestPermission();
@@ -1463,6 +1528,52 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+
+    public static Uri getImageContentUri(String rootpath) {
+        Log.d("jdf", "------------- Uri.parse(rootpath) ---------- : "+Uri.parse(rootpath));
+       return Uri.parse(rootpath);
+    }
+
+    private void convertBitmapToPdf(Bitmap photo) {
+        Log.d("jdf","---------------  convertBitmapToPdf1 : ");
+        Bitmap scaledBitmap;
+        PdfDocument pdfDocument = new PdfDocument();
+        PdfDocument.PageInfo pi = new PdfDocument.PageInfo.Builder(photo.getWidth(),photo.getHeight(),1).create();
+        PdfDocument.Page page = pdfDocument.startPage(pi);
+        Canvas canvas = page.getCanvas();
+        Paint paint = new Paint();
+        paint.setColor(Color.parseColor("#FFFFFF"));
+        canvas.drawPaint(paint);
+        Log.d("jdf","---------------  convertBitmapToPdf12 : ");
+
+        scaledBitmap = Bitmap.createScaledBitmap(photo,photo.getWidth(),photo.getHeight(),true);
+        paint.setColor(Color.BLUE);
+        canvas.drawBitmap(scaledBitmap,0,0,null);
+        pdfDocument.finishPage(page);
+
+        Log.d("jdf","---------------  convertBitmapToPdf1 23: ");
+        //Save the bitmap to pdf image
+
+        File root = new File(Environment.getExternalStorageDirectory(),"PDF Folder 12");
+        Log.d("jdf","---------------  root : "+root);
+        if(!(root.exists())){
+            root.mkdir();
+        }
+        File file = new File(root,"picture.pdf");
+        imageUri = Uri.fromFile(file);
+        rootpath = root.getPath()+"/picture.pdf";
+        Log.d("jdf","-------$$--------  imageUri : "+imageUri+" ---------rootpath : "+rootpath);
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            pdfDocument.writeTo(fileOutputStream);
+        } catch (IOException e) {
+            Log.d("jdf","---------------  root  IOException : "+e.getMessage());
+            e.printStackTrace();
+        }
+        pdfDocument.close();
 
     }
 
@@ -1739,7 +1850,13 @@ public class MainActivity extends AppCompatActivity {
 //        // this will show message uploading
 //        // while pdf is uploading
 //        dialog.show();
-        imageuri = data.getData();
+        if(data==null){
+            imageuri = imageUri;
+        }else {
+
+            imageuri = data.getData();
+        }
+        Log.d("jdf","------------ imguri "+imageuri);
         final String timestamp = ""+timeStamp;
                 //"" + System.currentTimeMillis();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();

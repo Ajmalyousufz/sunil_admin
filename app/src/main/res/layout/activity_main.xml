@@ -195,6 +195,9 @@
                             android:textColor="@color/white"
                             app:tint="@color/black" />
 
+
+
+
 <!--                        <com.labters.documentscanner.DocumentScannerView-->
 <!--                            android:id="@+id/document_scanner"-->
 <!--                            android:layout_width="match_parent"-->
@@ -406,6 +409,13 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="10dp"
                             android:text="Remove Shadow" />
+
+<!--                        <com.ortiz.touchview.TouchImageView-->
+<!--                            android:id="@+id/scanned_image"-->
+<!--                            android:src="@drawable/ic_baseline_folder_open_24"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="500dp"-->
+<!--                            android:scaleType="center" />-->
                     </LinearLayout>
 
 
