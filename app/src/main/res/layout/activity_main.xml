@@ -84,40 +84,134 @@
                         android:textColorHint="@color/black" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+<!--                <com.google.android.material.textfield.TextInputLayout-->
+<!--                    android:id="@+id/textInputLayout_article_newspaper_name"-->
+<!--                    style="@style/MyTextInputLayout"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="30dp"-->
+<!--                    android:hint="Enter Newspaper Name"-->
+<!--                    android:visibility="visible"-->
+<!--                    app:boxCornerRadiusBottomEnd="30dp"-->
+<!--                    app:boxCornerRadiusTopStart="30dp"-->
+<!--                    app:counterEnabled="true"-->
+<!--                    app:counterTextColor="@color/black"-->
+<!--                    app:endIconDrawable="@drawable/ic_baseline_title_24"-->
+<!--                    app:endIconMode="custom"-->
+<!--                    app:helperTextTextColor="#ED1515"-->
+<!--                    app:hintTextColor="@color/black"-->
+<!--                    app:layout_constraintTop_toTopOf="parent"-->
+<!--                    tools:layout_editor_absoluteX="0dp">-->
+
+<!--                    <com.google.android.material.textfield.TextInputEditText-->
+<!--                        android:id="@+id/textInputEdittext_article_newspaper_name"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="top"-->
+<!--                        android:inputType="textMultiLine"-->
+<!--                        android:textColor="@color/purple_700"-->
+<!--                        android:textColorHint="@color/black" />-->
+<!--                </com.google.android.material.textfield.TextInputLayout>-->
+
+<!--                <com.google.android.material.textfield.TextInputLayout-->
+<!--                    android:id="@+id/textInputLayout_article_news_category"-->
+<!--                    style="@style/MyTextInputLayout"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="30dp"-->
+<!--                    android:hint="Enter News Category"-->
+<!--                    android:visibility="visible"-->
+<!--                    app:boxCornerRadiusBottomEnd="30dp"-->
+<!--                    app:boxCornerRadiusTopStart="30dp"-->
+<!--                    app:counterEnabled="true"-->
+<!--                    app:counterTextColor="@color/black"-->
+<!--                    app:endIconDrawable="@drawable/ic_baseline_title_24"-->
+<!--                    app:endIconMode="custom"-->
+<!--                    app:helperTextTextColor="#ED1515"-->
+<!--                    app:hintTextColor="@color/black"-->
+<!--                    app:layout_constraintTop_toTopOf="parent"-->
+<!--                    tools:layout_editor_absoluteX="0dp">-->
+
+<!--                    <com.google.android.material.textfield.TextInputEditText-->
+<!--                        android:id="@+id/textInputEdittext_article_news_category"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="top"-->
+<!--                        android:inputType="textMultiLine"-->
+<!--                        android:textColor="@color/purple_700"-->
+<!--                        android:textColorHint="@color/black" />-->
+<!--                </com.google.android.material.textfield.TextInputLayout>-->
+
+
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayout_article_newspaper_name"
-                    style="@style/MyTextInputLayout"
+
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    app:boxCornerRadiusTopStart="30dp"
+                    app:boxCornerRadiusBottomEnd="30dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:hint="Enter Newspaper Name"
-                    android:visibility="visible"
-                    app:boxCornerRadiusBottomEnd="30dp"
-                    app:boxCornerRadiusTopStart="30dp"
-                    app:counterEnabled="true"
-                    app:counterTextColor="@color/black"
-                    app:endIconDrawable="@drawable/ic_baseline_title_24"
-                    app:endIconMode="custom"
-                    app:helperTextTextColor="#ED1515"
-                    app:hintTextColor="@color/black"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:layout_editor_absoluteX="0dp">
+                    android:hint="Select NewsPaper"
+                    android:orientation="horizontal"
+                    >
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/textInputEdittext_article_newspaper_name"
+
+
+                    <AutoCompleteTextView
+                        android:id="@+id/newspaper_name_dropdown"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="top"
-                        android:inputType="textMultiLine"
-                        android:textColor="@color/purple_700"
-                        android:textColorHint="@color/black" />
+                        android:inputType="none"/>
+
                 </com.google.android.material.textfield.TextInputLayout>
+                <Button
+                    android:text="Add new Newspaper"
+                    android:id="@+id/add_new_newspaper"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="20dp"
+                    android:drawableStart="@drawable/ic_baseline_add_24"
+                    android:drawableTint="@color/white"
+                    android:backgroundTint="@color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    app:boxCornerRadiusTopStart="30dp"
+                    app:boxCornerRadiusBottomEnd="30dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select Category"
+                    android:orientation="horizontal" >
+
+                    <AutoCompleteTextView
+                        android:id="@+id/filled_exposed_dropdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+                <Button
+                    android:text="Add new Category"
+                    android:id="@+id/add_new_cat"
+                    android:textColor="@color/white"
+                    android:drawableStart="@drawable/ic_baseline_add_24"
+                    android:drawableTint="@color/white"
+                    android:backgroundTint="@color/black"
+                    android:layout_marginBottom="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
 
                 <Button
                     android:id="@+id/news_date_btn"
                     android:layout_width="match_parent"
+                    android:drawableStart="@drawable/ic_baseline_calendar_month_24"
                     android:layout_height="wrap_content"
-                    android:text="Select News Date"/>
+                    android:text="Pick News Date"/>
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayout_keyword"
                     style="@style/MyTextInputLayout"
@@ -493,7 +587,48 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
+    <LinearLayout
+        android:id="@+id/upload_notity_layout"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        android:background="#DC43A047"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:padding="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/upload_indicator_text"
+            android:text="Uploading content..."
+            android:textColor="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/upload_progress_text"
+        android:text="0%"
+            android:textColor="@color/black"
+            android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+        <ProgressBar
+            android:id="@+id/progressbar_upload"
+            android:progressTint="@color/white"
+            android:progress="2"
+            android:layout_width="match_parent"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/scroll_view" />
+        <Button
+            android:id="@+id/close_btn_upload"
+            android:text="close"
+            android:textColor="@color/white"
+            android:backgroundTint="#D8B1A5A5"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
+    </LinearLayout>
     <ProgressBar
         android:id="@+id/progressbar"
         android:layout_width="wrap_content"
@@ -502,11 +637,28 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/scroll_view" />
-    <Button
-        android:id="@+id/upload_btn"
-        android:layout_margin="10dp"
+
+    <LinearLayout
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="upload"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/upload_btn"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="upload this only"
+            app:layout_constraintBottom_toBottomOf="parent" />
+        <Button
+            android:id="@+id/upload_addmore_btn"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="upload &amp; Add More"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

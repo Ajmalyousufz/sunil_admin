@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:backgroundTint="@color/white"
+    android:orientation="vertical"
+    android:layout_margin="20dp"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout_article_news_category"
+        style="@style/MyTextInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:hint="Enter New Category"
+        android:visibility="visible"
+        app:boxCornerRadiusBottomEnd="30dp"
+        app:boxCornerRadiusTopStart="30dp"
+        app:counterEnabled="true"
+        app:counterTextColor="@color/black"
+        app:endIconDrawable="@drawable/ic_baseline_title_24"
+        app:endIconMode="custom"
+        app:helperTextTextColor="#ED1515"
+        app:hintTextColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="0dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEdittext_article_news_category"
+            android:minWidth="230dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:textColor="@color/purple_700"
+            android:textColorHint="@color/black" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/add_btn"
+        android:text="Add"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

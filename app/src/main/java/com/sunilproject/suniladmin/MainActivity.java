@@ -1,7 +1,5 @@
 package com.sunilproject.suniladmin;
 
-import static com.google.common.net.MediaType.PDF;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,36 +15,27 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Picture;
-import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.pdf.PdfDocument;
 import android.graphics.pdf.PdfRenderer;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
-import android.os.Parcelable;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -55,10 +44,9 @@ import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
@@ -68,7 +56,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.asksira.webviewsuite.WebViewSuite;
-import com.bumptech.glide.Glide;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -76,6 +63,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -88,7 +77,6 @@ import com.namangarg.androiddocumentscannerandfilter.DocumentFilter;
 //import com.pdfview.PDFView;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
-import com.shockwave.pdfium.PdfiumCore;
 import com.sunilproject.suniladmin.utils.Callback;
 import com.sunilproject.suniladmin.utils.ImageFilePath;
 
@@ -99,12 +87,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -127,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     final int REQUEST_PERMISSION_CODE = 1000;
     public static final String TAG = "MainActivity1";
     Uri filePath;
-    Button upload_btn;
+    Button upload_btn,upload_addmore_btn;
     Uri imageUri = null;
     String imageurl="";
     ZoomageView myZoomageView;
@@ -147,7 +131,8 @@ public class MainActivity extends AppCompatActivity {
     TextView keywordview_tv;
     String keywordtext="";
     TextInputEditText textInputEdittext_article_title,textInputEdittext_article_description
-            ,textInputEdittext_podcast_keyword,textInputEdittext_article_newspaper_name;
+            ,textInputEdittext_podcast_keyword;
+     AutoCompleteTextView textInputEdittext_article_newspaper_name;
     Button news_date_btn;
 
     Intent mData=null;
@@ -176,6 +161,15 @@ public class MainActivity extends AppCompatActivity {
     ImageView imgview;
     String realPth="",realuri="";
     private String rootpath;
+    Button add_new_cat,add_new_newspaper;
+    AutoCompleteTextView editTextFilledExposedDropdown,newspaper_name_dropdown;
+
+    //upload notif views
+    LinearLayout upload_notity_layout;
+    TextView upload_indicator_text,upload_progress_text;
+    ProgressBar progressbar_upload;
+    Button close_btn_upload;
+
     //PDFView pdfview;
 
     //DocumentScannerView documentScannerView;
@@ -189,17 +183,91 @@ public class MainActivity extends AppCompatActivity {
         choose_from_file = findViewById(R.id.choose_from_file);
         camera_iv = findViewById(R.id.camera_iv);
         upload_btn= findViewById(R.id.upload_btn);
+        upload_addmore_btn = findViewById(R.id.upload_addmore_btn);
         scan_image = findViewById(R.id.scan_image);
         remove_shadow = findViewById(R.id.remove_shadow);
         webviewlayoutid = findViewById(R.id.webviewlayoutid);
         imgview =   findViewById(R.id.img_pdf);
         imgview.setVisibility(View.GONE);
+        add_new_cat = findViewById(R.id.add_new_cat);
+        add_new_newspaper = findViewById(R.id.add_new_newspaper);
+        editTextFilledExposedDropdown = findViewById(R.id.filled_exposed_dropdown);
+        newspaper_name_dropdown = findViewById(R.id.newspaper_name_dropdown);
+
+        //upload notify views
+        upload_notity_layout  = findViewById(R.id.upload_notity_layout);
+        upload_indicator_text = findViewById(R.id.upload_indicator_text);
+        upload_progress_text  = findViewById(R.id.upload_progress_text);
+        progressbar_upload    = findViewById(R.id.progressbar_upload);
+        close_btn_upload      = findViewById(R.id.close_btn_upload);
+        close_btn_upload.setOnClickListener(v -> {
+            upload_notity_layout.setVisibility(View.GONE);
+            upload_progress_text.setText("1 %");
+            progressbar_upload.setProgress(1);
+        });
+
+        upload_notity_layout.setVisibility(View.GONE);
+        close_btn_upload.setVisibility(View.GONE);
+
+
+        add_new_cat.setOnClickListener(v -> {
+            showCategoryDialog(new Callback() {
+                @Override
+                public void onSuccess() {
+                    //addNewCatToFirestore(category);
+                }
+
+                @Override
+                public void onFailure(String error) {
+
+                }
+            });
+        });
+        add_new_newspaper.setOnClickListener(v -> {
+            showNewsPaperDialog(new Callback() {
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onFailure(String error) {
+
+                }
+            });
+        });
 
         calendar = Calendar.getInstance();
         year = calendar.get(Calendar.YEAR);
 
         month = calendar.get(Calendar.MONTH);
         day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        loadNewsPaperNamesFromFirestore(new Callback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure(String error) {
+
+            }
+        });
+
+        loadCategoryFromfirestore(new Callback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure(String error) {
+
+            }
+        });
+
+
 
         //webviewlayoutid.setVisibility(View.GONE);
         webviewlayoutid.setOnClickListener(v -> {
@@ -333,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
         progressbar.setVisibility(View.GONE);
         textInputEdittext_podcast_keyword = findViewById(R.id.textInputEdittext_podcast_keyword);
         textInputEdittext_article_title = findViewById(R.id.textInputEdittext_article_title);
-        textInputEdittext_article_newspaper_name = findViewById(R.id.textInputEdittext_article_newspaper_name);
+        textInputEdittext_article_newspaper_name = findViewById(R.id.newspaper_name_dropdown);
         news_date_btn = findViewById(R.id.news_date_btn);
         news_date_btn.setOnClickListener(v -> {
             showDialog(999);
@@ -442,7 +510,7 @@ public class MainActivity extends AppCompatActivity {
                                     ZoomageView imgvieww =   findViewById(R.id.myZoomageView);
                                     //view_image_ll.setVisibility(View.VISIBLE);
                                     imgvieww.setVisibility(View.VISIBLE);
-                                    imgvieww.setImageBitmap(pdfBitmap);
+                                    //imgvieww.setImageBitmap(pdfBitmap);
                                     realPth= finalRealPath;
                                     realuri = String.valueOf(sUri);
 
@@ -650,7 +718,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //textInputEdittext_podcast_keyword.setText("");
                 //  }
-                keywordtext = String.valueOf(s);
+                //keywordtext = String.valueOf(s);
                 // if(keywordtext.contains(",")){
 
 //                    keywordview_ll.setVisibility(View.VISIBLE);
@@ -1200,112 +1268,115 @@ public class MainActivity extends AppCompatActivity {
                 if(mData!=null || imageUri!=null){
                     ArrayList<String> keyword_arrlist = new ArrayList<>();
 
-                    if(!keywordtext.equals("")){
-                        if(keywordtext.contains(",")){
-                            String[] splittedkeywords = keywordtext.split(",");
-                            StringBuilder keyword_str= new StringBuilder();
+                    if(!editTextFilledExposedDropdown.getText().toString().trim().equals("")){
+                        contentMap.put("news_category",editTextFilledExposedDropdown.getText().toString());
+                        if(!keywordtext.equals("")){
+                            if(keywordtext.contains(",")){
+                                String[] splittedkeywords = keywordtext.split(",");
+                                StringBuilder keyword_str= new StringBuilder();
 
-                            for (String splittedkeyword : splittedkeywords) {
-                                keyword_str.append(splittedkeyword);
-                                keyword_arrlist.add(splittedkeyword.trim());
+                                for (String splittedkeyword : splittedkeywords) {
+                                    keyword_str.append(splittedkeyword);
+                                    keyword_arrlist.add(splittedkeyword.trim());
+                                }
+                            }else {
+                                keyword_arrlist.add(keywordtext);
                             }
-                        }else {
-                            keyword_arrlist.add(keywordtext);
-                        }
-                        contentMap.put("content_keywords",keyword_arrlist);
+                            contentMap.put("content_keywords",keyword_arrlist);
 
 
-                        if(!textInputEdittext_article_newspaper_name.getText().toString().equals(""))
-                        {
-                            if(!pickedDate.equals("")){
+                            if(!textInputEdittext_article_newspaper_name.getText().toString().equals(""))
+                            {
+                                if(!pickedDate.equals("")){
 
-                                if(!textInputEdittext_article_title.getText().toString().equals("")){
+                                    if(!textInputEdittext_article_title.getText().toString().equals("")){
 
 
-                                    contentMap.put("views",0);
-                                    contentMap.put("comment_count",0);
-                                    contentMap.put("newspaperDate_timestamp",pickedDate_timestamp);
-                                    contentMap.put("newspaper_date",pickedDate);
-                                    contentMap.put("newspaper_name",textInputEdittext_article_newspaper_name.getText().toString());
-                                    contentMap.put("content_topic",textInputEdittext_article_title.getText().toString());
-                                    if(!textInputEdittext_article_description.getText().toString().equals("")){
+                                        contentMap.put("views",0);
+                                        contentMap.put("comment_count",0);
+                                        contentMap.put("newspaperDate_timestamp",pickedDate_timestamp);
+                                        contentMap.put("newspaper_date",pickedDate);
+                                        contentMap.put("newspaper_name",textInputEdittext_article_newspaper_name.getText().toString());
+                                        contentMap.put("content_topic",textInputEdittext_article_title.getText().toString());
+                                        if(!textInputEdittext_article_description.getText().toString().equals("")){
 
-                                        contentMap.put("content_decription",textInputEdittext_article_description.getText().toString());
-                                    }else {
+                                            contentMap.put("content_decription",textInputEdittext_article_description.getText().toString());
+                                        }else {
 
-                                        contentMap.put("content_decription","");
-                                    }
+                                            contentMap.put("content_decription","");
+                                        }
 
 //                            contentMap.put("podcastName",imageName);
 //                            contentMap.put("podcasttime",imageTime);
 //                            contentMap.put("adminEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
-                                    //Upload pdf
+                                        //Upload pdf
 
-                                    if(mData!=null || imageUri!=null){
+                                        if(mData!=null || imageUri!=null){
 
-                                        long timestmp = System.currentTimeMillis();
+                                            long timestmp = System.currentTimeMillis();
 
-                                        uploadFile(pdfBitmap, timestmp, new Callback() {
-                                            @Override
-                                            public void onSuccess() {
-                                                //progressDialog.dismiss();
+                                            uploadFile(v.getId(),pdfBitmap, timestmp, new Callback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    //progressDialog.dismiss();
 
-                                                uploadPdfFile(mData,timestmp, new Callback() {
+                                                    uploadPdfFile(mData,timestmp, new Callback() {
 
-                                                    @Override
-                                                    public void onSuccess() {
+                                                        @Override
+                                                        public void onSuccess() {
 
-                                                        try {
+                                                            try {
 
-                                                            long time= System.currentTimeMillis();
-                                                            time = timestmp;
-                                                            imageName = "pdf"+time;
-                                                            imageTime = String.valueOf(time);
+                                                                long time= System.currentTimeMillis();
+                                                                time = timestmp;
+                                                                imageName = "pdf"+time;
+                                                                imageTime = String.valueOf(time);
 
-                                                            tvPath.setText(Html.fromHtml("<big><b>PDF url Path</b></big><br>" + pdfUrl));
-                                                            tvPath.setSelectAllOnFocus(true);
-                                                            //webviewid.loadUrl("https://www.docs.google.com/gview?embedded=true&url="+pdfUrl);
-                                                            //webviewid.startLoading("https://docs.google.com/gview?embedded=true&url="+pdfUrl);
-                                                            //"https://docs.google.com/gview?embedded=true&url="+
-                                                            pageurl = String.valueOf(pdfUrl);
+                                                                tvPath.setText(Html.fromHtml("<big><b>PDF url Path</b></big><br>" + pdfUrl));
+                                                                tvPath.setSelectAllOnFocus(true);
+                                                                //webviewid.loadUrl("https://www.docs.google.com/gview?embedded=true&url="+pdfUrl);
+                                                                //webviewid.startLoading("https://docs.google.com/gview?embedded=true&url="+pdfUrl);
+                                                                //"https://docs.google.com/gview?embedded=true&url="+
+                                                                pageurl = String.valueOf(pdfUrl);
 
-                                                            findViewById(R.id.progressbar1).setVisibility(View.GONE);
-                                                            webviewlayoutid.setVisibility(View.VISIBLE);
+                                                                findViewById(R.id.progressbar1).setVisibility(View.GONE);
+                                                                webviewlayoutid.setVisibility(View.VISIBLE);
 
-                                                            //String image_url = task.getResult().toString();
+                                                                //String image_url = task.getResult().toString();
 
-                                                            //                            Map<String,Object> contentMap = new HashMap<>();
+                                                                //                            Map<String,Object> contentMap = new HashMap<>();
 //                            contentMap.put("content_title",);
 //                            contentMap.put("content_decription",description_str);
-                                                            //contentMap.put("adminEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
-                                                            contentMap.put("image_name",imageName);
-                                                            contentMap.put("uploaded_time",imageTime);
+                                                                //contentMap.put("adminEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                                                                contentMap.put("image_name",imageName);
+                                                                contentMap.put("uploaded_time",imageTime);
 //                            contentMap.put("content_keywords",contentKeywords);
-                                                            contentMap.put("pdf_url",pageurl);
-                                                            contentMap.put("image_url",imageUrl);
+                                                                contentMap.put("pdf_url",pageurl);
+                                                                contentMap.put("image_url",imageUrl);
 
-                                                            Log.d(TAG,"-------------contentmap ; "+contentMap);
+                                                                Log.d(TAG,"-------------contentmap ; "+contentMap);
 //
-                                                            firestore.collection("content_db").document(imageTime).set(contentMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                firestore.collection("content_db").document(imageTime).set(contentMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
 
-                                                                    if(task.isSuccessful()){
-                                                                        //progressDialog.dismiss();
-                                                                        Toast.makeText(MainActivity.this, "Data Successfully stored..", Toast.LENGTH_SHORT).show();
-                                                                        photo = null;
-                                                                        view_image.setImageBitmap(null);
-                                                                        view_image_ll.setVisibility(View.GONE);
+                                                                        if(task.isSuccessful()){
+                                                                            //progressDialog.dismiss();
+                                                                            Toast.makeText(MainActivity.this, "Data Successfully stored..", Toast.LENGTH_SHORT).show();
+                                                                            photo = null;
+                                                                            view_image.setImageBitmap(null);
+                                                                            view_image_ll.setVisibility(View.GONE);
+                                                                            finish();
+                                                                        }
+
                                                                     }
-
-                                                                }
-                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    Toast.makeText(MainActivity.this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                                }
-                                                            });
+                                                                }).addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Toast.makeText(MainActivity.this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                });
 
 
 //
@@ -1325,27 +1396,27 @@ public class MainActivity extends AppCompatActivity {
 //                                                }
 //                                            });
 
-                                                            new RetrivePDFfromUrl(new AsyncResponse() {
-                                                                @Override
-                                                                public void processFinish(InputStream output) {
-                                                                    //pdfView.fromStream(output).load();
-                                                                    Log.d("picwidth","------ processFinish : "+output);
-                                                                }
-                                                            })
-                                                            //        .execute(String.valueOf(pdfUrl))
-                                                            ;
+                                                                new RetrivePDFfromUrl(new AsyncResponse() {
+                                                                    @Override
+                                                                    public void processFinish(InputStream output) {
+                                                                        //pdfView.fromStream(output).load();
+                                                                        Log.d("picwidth","------ processFinish : "+output);
+                                                                    }
+                                                                })
+                                                                //        .execute(String.valueOf(pdfUrl))
+                                                                ;
 
-                                                            //webviewid.refresh();
-                                                            //webviewid.loadUrl("https://www.google.com");
-                                                            //webviewid.loadUrl("https://docs.google.com/gview?embedded=true&url="+"https://github.github.com/training-kit/downloads/github-git-cheat-sheet.pdf");
-                                                            //webviewid.loadUrl("https://github.github.com/training-kit/downloads/github-git-cheat-sheet.pdf");
+                                                                //webviewid.refresh();
+                                                                //webviewid.loadUrl("https://www.google.com");
+                                                                //webviewid.loadUrl("https://docs.google.com/gview?embedded=true&url="+"https://github.github.com/training-kit/downloads/github-git-cheat-sheet.pdf");
+                                                                //webviewid.loadUrl("https://github.github.com/training-kit/downloads/github-git-cheat-sheet.pdf");
 
-                                                            Log.d("urlk","--------------------pdfurl---- tvPath.getText() : "+tvPath.getText());
+                                                                Log.d("urlk","--------------------pdfurl---- tvPath.getText() : "+tvPath.getText());
 
-                                                            Log.d("urlk","--------------------pdfurl---- pdfUrl : "+pdfUrl);
-                                                        }catch (Exception e){
-                                                            Log.d("urlk","--------------------pdfurl---- Exception : "+e.getMessage());
-                                                        }
+                                                                Log.d("urlk","--------------------pdfurl---- pdfUrl : "+pdfUrl);
+                                                            }catch (Exception e){
+                                                                Log.d("urlk","--------------------pdfurl---- Exception : "+e.getMessage());
+                                                            }
 //                                    try {
 //
 //                                    webviewid.loadUrl(String.valueOf(pdfUrl));
@@ -1364,26 +1435,26 @@ public class MainActivity extends AppCompatActivity {
 //
 //                                        Log.d("urlk","------------------------ Exception : "+e.getMessage());
 //                                }
-                                                    }
+                                                        }
 
-                                                    @Override
-                                                    public void onFailure(String error) {
-                                                        Toast.makeText(MainActivity.this, "Error --- : "+error, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                            }
+                                                        @Override
+                                                        public void onFailure(String error) {
+                                                            Toast.makeText(MainActivity.this, "Error --- : "+error, Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                                }
 
-                                            @Override
-                                            public void onFailure(String error) {
+                                                @Override
+                                                public void onFailure(String error) {
 
-                                            }
-                                        });
+                                                }
+                                            });
 
-                                    }else {
-                                        Toast.makeText(MainActivity.this, "Select pdf file...", Toast.LENGTH_SHORT).show();
-                                    }
+                                        }else {
+                                            Toast.makeText(MainActivity.this, "Select pdf file...", Toast.LENGTH_SHORT).show();
+                                        }
 
-                                    //Uploading photo
+                                        //Uploading photo
 //                            uploadFile(photo, new Callback() {
 //                                @Override
 //                                public void onSuccess() {
@@ -1446,25 +1517,353 @@ public class MainActivity extends AppCompatActivity {
 //                                    Toast.makeText(MainActivity.this, "Error : "+error, Toast.LENGTH_SHORT).show();
 //                                }
 //                            });
-                                    //////////////////////////////
+                                        //////////////////////////////
+                                    }else {
+                                        Toast.makeText(MainActivity.this, "Enter Article Topic", Toast.LENGTH_SHORT).show();
+                                    }
+
                                 }else {
-                                    Toast.makeText(MainActivity.this, "Enter Article Topic", Toast.LENGTH_SHORT).show();
+
+                                    Toast.makeText(MainActivity.this, "Pick News Date.", Toast.LENGTH_SHORT).show();
                                 }
 
                             }else {
-
-                                Toast.makeText(MainActivity.this, "Pick News Date.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Enter News paper Name...", Toast.LENGTH_SHORT).show();
                             }
 
+
+
                         }else {
-                            Toast.makeText(MainActivity.this, "Enter News paper Name...", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Enter at least one keyword", Toast.LENGTH_SHORT).show();
                         }
-
-
-
                     }else {
-                        Toast.makeText(MainActivity.this, "Enter at least one keyword", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(MainActivity.this, "Select news Category...", Toast.LENGTH_SHORT).show();
                     }
+
+
+
+
+
+
+                }else {
+                    Toast.makeText(MainActivity.this, "Select pdf file first", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        upload_addmore_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+
+                String ed_dropdown = editTextFilledExposedDropdown.getText().toString().trim();
+                String article_newspaper_name = textInputEdittext_article_newspaper_name.getText().toString().trim();
+                String article_title = textInputEdittext_article_title.getText().toString().trim();
+                String article_description = textInputEdittext_article_description.getText().toString().trim();
+                keywordtext  = textInputEdittext_podcast_keyword.getText().toString().trim();
+
+                editTextFilledExposedDropdown.setText("");
+                textInputEdittext_article_newspaper_name.setText("");
+                textInputEdittext_article_title.setText("");
+                textInputEdittext_article_description.setText("");
+                textInputEdittext_podcast_keyword.setText("");
+                news_date_btn.setText("");
+                date = null;
+                imgview.setImageBitmap(null);
+                webviewlayoutid.setVisibility(View.GONE);
+
+                Map<String,Object> contentMap = new HashMap<>();
+                // uploadImage();
+
+                if(mData!=null || imageUri!=null){
+                    ArrayList<String> keyword_arrlist = new ArrayList<>();
+
+                    if(!ed_dropdown.equals("")){
+                        contentMap.put("news_category",ed_dropdown);
+                        if(!keywordtext.equals("")){
+                            if(keywordtext.contains(",")){
+                                String[] splittedkeywords = keywordtext.split(",");
+                                StringBuilder keyword_str= new StringBuilder();
+
+                                for (String splittedkeyword : splittedkeywords) {
+                                    keyword_str.append(splittedkeyword);
+                                    keyword_arrlist.add(splittedkeyword.trim());
+                                }
+                            }else {
+                                keyword_arrlist.add(keywordtext);
+                            }
+                            contentMap.put("content_keywords",keyword_arrlist);
+
+
+                            if(!article_newspaper_name.equals(""))
+                            {
+                                if(!pickedDate.equals("")){
+
+                                    if(!article_title.equals("")){
+
+
+                                        contentMap.put("views",0);
+                                        contentMap.put("comment_count",0);
+                                        contentMap.put("newspaperDate_timestamp",pickedDate_timestamp);
+                                        contentMap.put("newspaper_date",pickedDate);
+                                        contentMap.put("newspaper_name",article_newspaper_name);
+                                        contentMap.put("content_topic",article_title);
+                                        if(!article_description.equals("")){
+
+                                            contentMap.put("content_decription",article_description);
+                                        }else {
+
+                                            contentMap.put("content_decription","");
+                                        }
+
+//                            contentMap.put("podcastName",imageName);
+//                            contentMap.put("podcasttime",imageTime);
+//                            contentMap.put("adminEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
+                                        //Upload pdf
+
+                                        if(mData!=null || imageUri!=null){
+
+                                            long timestmp = System.currentTimeMillis();
+
+
+
+                                            upload_notity_layout.setVisibility(View.VISIBLE);
+                                            progressbar_upload.setProgress(10);
+                                            upload_progress_text.setText("10 %");
+
+                                            uploadFile(v.getId(),pdfBitmap, timestmp, new Callback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    //progressDialog.dismiss();
+
+                                                    uploadPdfFile(mData,timestmp, new Callback() {
+
+                                                        @Override
+                                                        public void onSuccess() {
+
+                                                            try {
+
+                                                                long time= System.currentTimeMillis();
+                                                                time = timestmp;
+                                                                imageName = "pdf"+time;
+                                                                imageTime = String.valueOf(time);
+
+                                                                tvPath.setText(Html.fromHtml("<big><b>PDF url Path</b></big><br>" + pdfUrl));
+                                                                tvPath.setSelectAllOnFocus(true);
+                                                                //webviewid.loadUrl("https://www.docs.google.com/gview?embedded=true&url="+pdfUrl);
+                                                                //webviewid.startLoading("https://docs.google.com/gview?embedded=true&url="+pdfUrl);
+                                                                //"https://docs.google.com/gview?embedded=true&url="+
+                                                                pageurl = String.valueOf(pdfUrl);
+
+                                                                findViewById(R.id.progressbar1).setVisibility(View.GONE);
+                                                                webviewlayoutid.setVisibility(View.VISIBLE);
+
+                                                                //String image_url = task.getResult().toString();
+
+                                                                //                            Map<String,Object> contentMap = new HashMap<>();
+//                            contentMap.put("content_title",);
+//                            contentMap.put("content_decription",description_str);
+                                                                //contentMap.put("adminEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                                                                contentMap.put("image_name",imageName);
+                                                                contentMap.put("uploaded_time",imageTime);
+//                            contentMap.put("content_keywords",contentKeywords);
+                                                                contentMap.put("pdf_url",pageurl);
+                                                                contentMap.put("image_url",imageUrl);
+
+                                                                Log.d(TAG,"-------------contentmap ; "+contentMap);
+                                                                progressbar_upload.setProgress(90);
+                                                                upload_progress_text.setText("90 %");
+//
+                                                                firestore.collection("content_db").document(imageTime).set(contentMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+
+                                                                        if(task.isSuccessful()){
+                                                                            //progressDialog.dismiss();
+                                                                            Toast.makeText(MainActivity.this, "Data Successfully stored..", Toast.LENGTH_SHORT).show();
+                                                                            photo = null;
+                                                                            view_image.setImageBitmap(null);
+                                                                            view_image_ll.setVisibility(View.GONE);
+                                                                            progressbar_upload.setProgress(100);
+                                                                            upload_progress_text.setText("100 % Completed");
+                                                                            close_btn_upload.setVisibility(View.VISIBLE);
+                                                                            mData = null;
+                                                                            imageUri = null;
+                                                                        }
+
+                                                                    }
+                                                                }).addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Toast.makeText(MainActivity.this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                });
+
+
+//
+//                                            generateImageFromPdf(pdfUrl, new Callback() {
+//                                                @Override
+//                                                public void onSuccess() {
+//                                                    Toast.makeText(MainActivity.this, "onsuc", Toast.LENGTH_SHORT).show();
+//                                                    ImageView imageView = findViewById(R.id.img_pdf);
+//                                                    imageView.setImageBitmap(bitmap);
+//                                                    Log.d("bitmap1","---- : "+bitmap.getByteCount());
+//
+//                                                }
+//
+//                                                @Override
+//                                                public void onFailure(String error) {
+//
+//                                                }
+//                                            });
+
+                                                                new RetrivePDFfromUrl(new AsyncResponse() {
+                                                                    @Override
+                                                                    public void processFinish(InputStream output) {
+                                                                        //pdfView.fromStream(output).load();
+                                                                        Log.d("picwidth","------ processFinish : "+output);
+                                                                    }
+                                                                })
+                                                                //        .execute(String.valueOf(pdfUrl))
+                                                                ;
+
+                                                                //webviewid.refresh();
+                                                                //webviewid.loadUrl("https://www.google.com");
+                                                                //webviewid.loadUrl("https://docs.google.com/gview?embedded=true&url="+"https://github.github.com/training-kit/downloads/github-git-cheat-sheet.pdf");
+                                                                //webviewid.loadUrl("https://github.github.com/training-kit/downloads/github-git-cheat-sheet.pdf");
+
+                                                                Log.d("urlk","--------------------pdfurl---- tvPath.getText() : "+tvPath.getText());
+
+                                                                Log.d("urlk","--------------------pdfurl---- pdfUrl : "+pdfUrl);
+                                                            }catch (Exception e){
+                                                                Log.d("urlk","--------------------pdfurl---- Exception : "+e.getMessage());
+                                                            }
+//                                    try {
+//
+//                                    webviewid.loadUrl(String.valueOf(pdfUrl));
+//                                    Log.d("urlk","------------------------ pdfurl : "+pdfUrl);
+//                                    String url="";
+//                                    String pdf = "https://firebasestorage.googleapis.com/v0/b/mindlabz-6f809.appspot.com/o/course_content%2FCracking%20the%20Coding%20Interview.pdf?alt=media&token=12a7fb3d-92d8-49f6-bd13-f88ec634c06c";
+//                                    try {
+//                                        url= URLEncoder.encode(pdfUrl.toString(),"UTF-8");
+//                                    } catch (UnsupportedEncodingException e) {
+//
+//                                        Log.d("urlk","------------------------ UnsupportedEncodingException : "+e.getMessage());
+//                                        e.printStackTrace();
+//                                    }
+//                                    webviewid.loadUrl(url);
+//                                }catch (Exception e){
+//
+//                                        Log.d("urlk","------------------------ Exception : "+e.getMessage());
+//                                }
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(String error) {
+                                                            Toast.makeText(MainActivity.this, "Error --- : "+error, Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onFailure(String error) {
+
+                                                }
+                                            });
+
+                                        }else {
+                                            Toast.makeText(MainActivity.this, "Select pdf file...", Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        //Uploading photo
+//                            uploadFile(photo, new Callback() {
+//                                @Override
+//                                public void onSuccess() {
+//
+//                                    StorageReference starsRef = storageReference.child("images/img" + imageTime);
+//                                    starsRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull Task<Uri> task) {
+//
+//                                            if(task.isSuccessful())
+//                                            {
+//                                                String image_url = task.getResult().toString();
+//
+//                                                //                            Map<String,Object> contentMap = new HashMap<>();
+////                            contentMap.put("content_title",);
+////                            contentMap.put("content_decription",description_str);
+//                                                //contentMap.put("adminEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+//                                                contentMap.put("image_name",imageName);
+//                                                contentMap.put("uploaded_time",imageTime);
+////                            contentMap.put("content_keywords",contentKeywords);
+//                                                contentMap.put("image_url",image_url);
+//
+//                                                Log.d(TAG,"-------------contentmap ; "+contentMap);
+////
+//                                                firestore.collection("content_db").document(imageTime).set(contentMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                                    @Override
+//                                                    public void onComplete(@NonNull Task<Void> task) {
+//
+//                                                        if(task.isSuccessful()){
+//                                                            progressDialog.dismiss();
+//                                                            Toast.makeText(MainActivity.this, "Data Successfully stored..", Toast.LENGTH_SHORT).show();
+//                                                            photo = null;
+//                                                            view_image.setImageBitmap(null);
+//                                                            view_image_ll.setVisibility(View.GONE);
+//                                                        }
+//
+//                                                    }
+//                                                }).addOnFailureListener(new OnFailureListener() {
+//                                                    @Override
+//                                                    public void onFailure(@NonNull Exception e) {
+//                                                        Toast.makeText(MainActivity.this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+//                                                    }
+//                                                });
+//
+//                                            }
+//
+//                                        }
+//                                    }).addOnFailureListener(new OnFailureListener() {
+//                                        @Override
+//                                        public void onFailure(@NonNull Exception e) {
+//                                            Toast.makeText(MainActivity.this, "Failure : "+e.getMessage(), Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    });
+//
+//
+//                                }
+//
+//                                @Override
+//                                public void onFailure(String error) {
+//                                    Toast.makeText(MainActivity.this, "Error : "+error, Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
+                                        //////////////////////////////
+                                    }else {
+                                        Toast.makeText(MainActivity.this, "Enter Article Topic", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                }else {
+
+                                    Toast.makeText(MainActivity.this, "Pick News Date.", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }else {
+                                Toast.makeText(MainActivity.this, "Enter News paper Name...", Toast.LENGTH_SHORT).show();
+                            }
+
+
+
+                        }else {
+                            Toast.makeText(MainActivity.this, "Enter at least one keyword", Toast.LENGTH_SHORT).show();
+                        }
+                    }else {
+
+                        Toast.makeText(MainActivity.this, "Select news Category...", Toast.LENGTH_SHORT).show();
+                    }
+
 
 
 
@@ -1529,6 +1928,213 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    String newspaper;
+    private void showNewsPaperDialog(Callback callback) {
+        Dialog dialog = new Dialog(MainActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        dialog.setContentView(R.layout.category_dialog);
+        final TextInputEditText textInputEdittext_article_news_category = dialog.findViewById(R.id.textInputEdittext_article_news_category);
+        textInputEdittext_article_news_category.setHint("Enter new NewsPaper name");
+
+        Button add_btn = dialog.findViewById(R.id.add_btn);
+        add_btn.setOnClickListener(v -> {
+            newspaper = textInputEdittext_article_news_category.getText().toString().trim();
+            addNewNewsPaperNameToFirestore(newspaper, new Callback() {
+                @Override
+                public void onSuccess() {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, R.layout.dropdown_popup_item, oldNewsNamesList);
+                    newspaper_name_dropdown.setAdapter(adapter);
+                    callback.onSuccess();
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(String error) {
+
+                }
+            });
+        });
+        dialog.show();
+    }
+
+    private void addNewNewsPaperNameToFirestore(String newspaper, Callback callback) {
+        oldNewsNamesList = null;
+        loadNewsPaperNamesFromFirestore(new Callback() {
+            @Override
+            public void onSuccess() {
+                ArrayList<String> arrayList = new ArrayList<>();
+                arrayList.clear();
+                Map<String, ArrayList<String>> map = new HashMap<>();
+                if(oldNewsNamesList!=null){
+                    for(int i=0;i<oldNewsNamesList.length;i++){
+                        arrayList.add(oldNewsNamesList[i]);
+                    }
+                    arrayList.add(newspaper);
+
+                    for (int j = 0;j<arrayList.size()-1;j++){
+                        oldNewsNamesList[j] = arrayList.get(j);
+                    }
+
+                    map.put("newspapers",arrayList);
+
+                    firestore = FirebaseFirestore.getInstance();
+                    DocumentReference documentReference = firestore.collection("metadata").document("newspaper_names");
+                    documentReference.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            callback.onSuccess();
+                            Toast.makeText(MainActivity.this, "Successfully Added...", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }else {
+                    callback.onFailure("failure");
+                    Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+
+            }
+        });
+
+    }
+
+    String[] oldNewsNamesList;
+    private void loadNewsPaperNamesFromFirestore(Callback callback) {
+
+        firestore = FirebaseFirestore.getInstance();
+        DocumentReference documentReference = firestore.collection("metadata").document("newspaper_names");
+        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                String catstr =  documentSnapshot.get("newspapers")+"";
+                catstr = catstr.replace("[","");
+                catstr = catstr.replace("]","");
+                catstr = catstr.replace("null,","");
+                String [] catstrarr = catstr.split(",");
+                oldNewsNamesList = catstrarr;
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, R.layout.dropdown_popup_item, oldNewsNamesList);
+                newspaper_name_dropdown.setAdapter(adapter);
+
+                Log.d("jdf", "------------- loadNewsPaperNamesFromFirestore ---------- : "+documentSnapshot.get("newspapers")+" st " +catstr);
+
+                callback.onSuccess();
+            }
+        });
+    }
+
+    private void addNewCatToFirestore(String newCat,Callback callback) {
+
+        oldCatList = null;
+        loadCategoryFromfirestore(new Callback() {
+            @Override
+            public void onSuccess() {
+                ArrayList<String> arrayList = new ArrayList<>();
+                arrayList.clear();
+                Map<String, ArrayList<String>> map = new HashMap<>();
+                if(oldCatList!=null){
+                    for(int i=0;i<oldCatList.length;i++){
+                        arrayList.add(oldCatList[i]);
+                    }
+                    arrayList.add(newCat);
+
+                    for (int j = 0;j<arrayList.size()-1;j++){
+                        oldCatList[j] = arrayList.get(j);
+                    }
+
+                    map.put("categories_list",arrayList);
+
+                    firestore = FirebaseFirestore.getInstance();
+                    DocumentReference documentReference = firestore.collection("metadata").document("news_categories");
+                    documentReference.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            callback.onSuccess();
+                            Toast.makeText(MainActivity.this, "Successfully Added...", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }else {
+                    callback.onFailure("failure");
+                    Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+
+            }
+        });
+
+
+
+
+
+    }
+
+    String category;
+
+    private void showCategoryDialog(Callback callback) {
+        Dialog dialog = new Dialog(MainActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        dialog.setContentView(R.layout.category_dialog);
+        final TextInputEditText textInputEdittext_article_news_category = dialog.findViewById(R.id.textInputEdittext_article_news_category);
+
+        Button add_btn = dialog.findViewById(R.id.add_btn);
+        add_btn.setOnClickListener(v -> {
+            category = textInputEdittext_article_news_category.getText().toString().trim();
+            addNewCatToFirestore(category, new Callback() {
+                @Override
+                public void onSuccess() {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, R.layout.dropdown_popup_item, oldCatList);
+                    editTextFilledExposedDropdown.setAdapter(adapter);
+                    callback.onSuccess();
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(String error) {
+
+                }
+            });
+        });
+        dialog.show();
+    }
+
+    String[] oldCatList;
+    private void loadCategoryFromfirestore(Callback callback) {
+        firestore = FirebaseFirestore.getInstance();
+        DocumentReference documentReference = firestore.collection("metadata").document("news_categories");
+        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String[] cat_list = new String[] {"Bed-sitter", "Single", "1- Bedroom", "2- Bedroom","3- Bedroom"};
+
+                String catstr =  documentSnapshot.get("categories_list")+"";
+                catstr = catstr.replace("[","");
+                catstr = catstr.replace("]","");
+                catstr = catstr.replace("null,","");
+                String [] catstrarr = catstr.split(",");
+                oldCatList = catstrarr;
+                cat_list = catstrarr;
+
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, R.layout.dropdown_popup_item, oldCatList);
+                editTextFilledExposedDropdown.setAdapter(adapter);
+
+                Log.d("jdf", "------------- documentSnapshot ---------- : "+documentSnapshot.get("categories_list")+" st " +catstr);
+
+                callback.onSuccess();
+            }
+        });
     }
 
 
@@ -1614,6 +2220,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 
+    Date date = null;
     private void showDate(int year, int month, int day) {
         StringBuilder dDate = new StringBuilder().append(day).append("/")
                 .append(month).append("/").append(year);
@@ -1621,7 +2228,7 @@ public class MainActivity extends AppCompatActivity {
         pickedDate = dDate.toString();
 
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        Date date = null;
+
         try {
             date = (Date)formatter.parse(dDate.toString());
 
@@ -1868,6 +2475,8 @@ public class MainActivity extends AppCompatActivity {
                 //+ "." + "pdf"
         );
         //Toast.makeText(MainActivity.this, filepath.getName(), Toast.LENGTH_SHORT).show();
+        progressbar_upload.setProgress(70);
+        upload_progress_text.setText("70 %");
         filepath.putFile(imageuri).continueWithTask(new Continuation() {
             @Override
             public Object then(@NonNull Task task) throws Exception {
@@ -1892,6 +2501,8 @@ public class MainActivity extends AppCompatActivity {
                     //pdfUrl = Uri.parse(task.getResult().getPath());
                     //webviewid.loadUrl(String.valueOf(task.getResult()));
 
+                    progressbar_upload.setProgress(80);
+                    upload_progress_text.setText("80 %");
                     callback.onSuccess();
                 } else {
                     dialog.dismiss();
@@ -1902,13 +2513,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void uploadFile(Bitmap bitmap,long timeStamp,Callback callback) {
+    private void uploadFile(int idn,Bitmap bitmap,long timeStamp,Callback callback) {
         dialog = new ProgressDialog(this);
         dialog.setMessage("Uploading");
 
         // this will show message uploading
         // while pdf is uploading
-        dialog.show();
+        if(idn == R.id.upload_btn){
+
+            dialog.show();
+        }
         FirebaseStorage storage = FirebaseStorage.getInstance();
         //StorageReference storageRef = storage.getReferenceFromUrl("Your url for storage");
 //        StorageReference mountainImagesRef = storageReference.child("images/" + UUID.randomUUID().toString());
@@ -1924,8 +2538,16 @@ public class MainActivity extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Uploading...");
-        progressDialog.show();
 
+        if(idn == R.id.upload_btn){
+            progressDialog.show();
+        }
+
+
+        progressbar_upload.setProgress(20);
+        upload_progress_text.setText("20 %");
+
+        final double[] temp = {0};
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -1958,6 +2580,8 @@ public class MainActivity extends AppCompatActivity {
                 // Dismiss dialog
 //                progressDialog.dismiss();
                 //Toast.makeText(MainActivity.this, "Image Uploaded!!", Toast.LENGTH_SHORT).show();
+                progressbar_upload.setProgress(60);
+                upload_progress_text.setText("60 %");
                 callback.onSuccess();
             }
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -1965,7 +2589,11 @@ public class MainActivity extends AppCompatActivity {
             public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
                 {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                    temp[0] = temp[0] +progress;
 
+                    progressbar_upload.setProgress(40);
+                    upload_progress_text.setText("40 %");
+                    Log.d("jdf","temp : :: : "+temp[0]);
                     progressDialog.setMessage("Uploaded " + (int)progress + "%");
                 }
             }
