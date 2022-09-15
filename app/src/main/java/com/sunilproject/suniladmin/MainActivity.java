@@ -1264,7 +1264,7 @@ public class MainActivity extends AppCompatActivity {
                 Map<String,Object> contentMap = new HashMap<>();
                // uploadImage();
 
-
+                keywordtext = textInputEdittext_podcast_keyword.getText().toString().trim();
                 if(mData!=null || imageUri!=null){
                     ArrayList<String> keyword_arrlist = new ArrayList<>();
 
